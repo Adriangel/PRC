@@ -1,0 +1,207 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<meta name="programmer" content="avehicle">
+		<meta name="designer" content="kyrexar">
+		
+		<title>Portal Range Calculator</title>
+		<link rel="shortcut icon" href="drivers.ico"/>
+		<link type="text/css" rel="stylesheet" href="portal-range-calc.css"/>
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Lato">
+	</head>
+	</head>
+	<body>
+		<hr align="left" width="300px"><p class="t"> PORTAL RANGE CALCULATOR </p><hr align="left" width="300px">
+		
+		<table class="portal_calcs">
+			<tbody>
+				<tr><td>Portal Level:</td><td style="width:90px;"> <span id="portalLevel">0</span></td></tr>
+				<tr><td>Portal Range:</td><td> <span id="portalRange">0</span>m</tr></td>
+				<tr><td>Portal Base Range:</td><td> <span id="portalBaseRange">0</span>m</tr></td>
+				<tr><td>Portal Range Multiplier:</td><td> <span id="portalRangeMultiplier">1</span>x</tr></td>
+			<tbody>
+		</table>
+		<br>
+		<span>Defaults:</span>
+		<select id="defaults">
+			<option selected="" value="0">Empty Portal</option>
+			<option value="1">One L8 Agent</option>
+			<option value="2">Two L8 Agents</option>
+			<option value="3">Three L8 Agents</option>
+			<option value="8">L8 Portal</option>
+		</select>
+		<br><br>
+		<span class="t2">Resonators:</span>
+		<table id="resonators">
+			<tbody>
+				<tr>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+					<td class="boton">+</td>
+				</tr><tr>
+					<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
+				</tr><tr>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+					<td class="boton">-</td>
+				</tr>
+			</tbody>
+		</table>
+		<br>
+		<span class="t2">Mods (Solo Link-Amps):</span>
+		<table id="mods">
+			<tbody>
+				<tr>
+					<td class="boton" onclick="shiftMod(-1, 0)">&lt;&lt;</td>
+					<td style="width:150px;">Sin Mod</td>
+					<td class="boton" onclick="shiftMod(1, 0)">&gt;&gt;</td>
+				</tr><tr>
+					<td class="boton" onclick="shiftMod(-1, 1)">&lt;&lt;</td>
+					<td>Sin Mod</td>
+					<td class="boton" onclick="shiftMod(1, 1)">&gt;&gt;</td>
+				</tr><tr>
+					<td class="boton" onclick="shiftMod(-1, 2)">&lt;&lt;</td>
+					<td>Sin Mod</td>
+					<td class="boton" onclick="shiftMod(1, 2)">&gt;&gt;</td>
+				</tr><tr>
+					<td class="boton" onclick="shiftMod(-1, 3)">&lt;&lt;</td>
+					<td>Sin Mod</td>
+					<td class="boton" onclick="shiftMod(1, 3)">&gt;&gt;</td>
+				</tr>
+			</tbody>
+		</table>
+		<script type="text/javascript" defer="">
+			var htmlElems = {
+				pl: document.getElementById("portalLevel"),
+				pr: document.getElementById("portalRange"),
+				pbr: document.getElementById("portalBaseRange"),
+				prm: document.getElementById("portalRangeMultiplier")
+			};
+			var table = document.getElementById("resonators").children[0];
+			var data = {
+				pl: 0,
+				pr: 0,
+				pbr: 0,
+				prm: 1,
+				resos: [0,0,0,0,0,0,0,0],
+				mods: [0,0,0,0],
+				modF:[
+						[0, 0, 0, 0],
+						[1, 0.5, 0.25, 0.25],
+						[4, 1.25, 0.625, 0.625],
+						[6, 1.75, 0.875, 0.875]
+					],
+				modNames: ["Sin Mod", "Link Amp (Rare)", "SoftBank Ultra Link", "Link Amp (Very Rare)"]
+			};
+			
+			function calculate() {
+				data.pl = 0;
+				//Cálculo del nivel
+				for (i=0; i<8; i++) {
+					data.pl += data.resos[i]*0.125;
+				}
+				
+				//Cálculo del rango base
+				data.pbr = 160 * Math.pow(data.pl, 4);
+				
+				//Cálculo del factor de rango
+				data.prm = 1;
+				var mods = [0,0,0,0];
+				for (i=0; i<4; i++)
+					mods[i] = data.mods[i];
+				
+				mods.sort().reverse();
+				for (i=0; i<4; i++)
+					data.prm += data.modF[mods[i]][i];
+				data.pr = data.pbr * data.prm;
+				updateDisplay();
+			}
+			
+			function updateDisplay() {
+				var nf = new Intl.NumberFormat('en-US', {style:'decimal',maximumFractionDigits:0,});
+				document.getElementById("portalLevel").innerHTML = data.pl;
+				document.getElementById("portalRange").innerHTML = nf.format(data.pr);
+				document.getElementById("portalBaseRange").innerHTML = nf.format(data.pbr);
+				document.getElementById("portalRangeMultiplier").innerHTML = data.prm;
+			}
+			
+			// EVENT HANDLERS
+			function setReso(index, amount) {
+				/*if (!Number.isInteger(index) && index < 0 && index > 8)
+					return;
+				if (amount !== 1 && amount !== -1)
+					return;*/
+				val = data.resos[index] + amount;
+				val = Math.max(0, Math.min(val, 8));
+				table.children[1].children[index].innerHTML = val;
+				data.resos[index] = val;
+				calculate();
+			}
+			
+			function shiftMod(amount, index) {
+				if (typeof amount !== 'number' || index < 0 || index >= 4)
+					return;
+				amount = (amount<0)? -1: 1; 
+				val = data.mods[index] + amount;
+				val = (val<0)? 3 : (val >3)? 0: val;
+				data.mods[index] = val;
+				
+				document.getElementById("mods").children[0].children[index].children[1].innerHTML = data.modNames[val];
+				calculate();
+			}
+
+			function defaultsChange() {
+				var val = parseInt(document.getElementById("defaults").value);
+				switch(val) {
+					case 0:
+						data.resos = [0,0,0,0,0,0,0,0];
+						break;
+					case 1:
+						data.resos = [8,7,6,6,5,5,4,4];
+						break;
+					case 2:
+						data.resos = [8,8,7,7,6,6,6,6];
+						break;
+					case 3:
+						data.resos = [8,8,8,7,7,7,6,6];
+						break;
+					case 8:
+						data.resos = [8,8,8,8,8,8,8,8];
+						break;
+				}
+				for (i=0; i<8; i++)
+					table.children[1].children[i].innerHTML = data.resos[i];
+				calculate();
+			}
+
+			table.children[0].children[0].addEventListener("click", function(){setReso(0, 1);});
+			table.children[2].children[0].addEventListener("click", function(){setReso(0, -1);});
+			table.children[0].children[1].addEventListener("click", function(){setReso(1, 1);});
+			table.children[2].children[1].addEventListener("click", function(){setReso(1, -1);});
+			table.children[0].children[2].addEventListener("click", function(){setReso(2, 1);});
+			table.children[2].children[2].addEventListener("click", function(){setReso(2, -1);});
+			table.children[0].children[3].addEventListener("click", function(){setReso(3, 1);});
+			table.children[2].children[3].addEventListener("click", function(){setReso(3, -1);});
+			table.children[0].children[4].addEventListener("click", function(){setReso(4, 1);});
+			table.children[2].children[4].addEventListener("click", function(){setReso(4, -1);});
+			table.children[0].children[5].addEventListener("click", function(){setReso(5, 1);});
+			table.children[2].children[5].addEventListener("click", function(){setReso(5, -1);});
+			table.children[0].children[6].addEventListener("click", function(){setReso(6, 1);});
+			table.children[2].children[6].addEventListener("click", function(){setReso(6, -1);});
+			table.children[0].children[7].addEventListener("click", function(){setReso(7, 1);});
+			table.children[2].children[7].addEventListener("click", function(){setReso(7, -1);});
+			document.getElementById("defaults").addEventListener("change", function(){defaultsChange();});
+			
+		</script>
+	
+</body></html>

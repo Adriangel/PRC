@@ -1,0 +1,54 @@
+*{
+	font-family: 'Lato';
+	font-size:16px
+}
+
+body {
+	margin-left:0px;
+	left:0px;
+	margin-top:0px;
+	top:0px;
+	padding-left:10px;
+	background-color:#ddeedd;
+	}
+
+.t{
+	font-weight:bold;
+	font-size: 20px;
+}
+
+.t2{
+	font-weight:bold;
+	font-size: 18px;
+}
+
+.portal_calcs {
+	margin-top:20px;
+	list-style:none;
+	margin-left:0px;
+	padding:0px;
+	border:0;
+	}
+			
+#mods, #resonators, td, tr{
+	border:1px solid gray;
+	padding:2px 8px;
+	text-align:center;
+	border-collapse:collapse;
+	border-radius:5px;
+}
+			
+.boton {
+	font-weight:bold;
+	width:1px;
+	border:3px solid grey;
+	border-radius:5px;
+	background-color:lightgreen;
+	Transition: border 1s, background-color 1s;
+	-webkit-Transition: border 1s, background-color 1s;
+	}
+
+.boton:hover {
+	border:3px solid darkgreen;
+	background-color:green;
+	}
